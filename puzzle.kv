@@ -1,0 +1,170 @@
+Wrapper:
+
+
+<CustomInputField>:
+    id: input_1
+    font_size: 24
+    multiline: False
+    input_filter: 'int' 
+    halign: 'center'
+    valign: 'middle'
+    padding_y: [self.height / 2 - (self.line_height / 2)]  
+    text: ''
+<InputPositions>:
+    BoxLayout:
+        id: box_layout
+        padding: ('10dp', '10dp', '10dp', '10dp')
+        spacing: dp(20)
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        orientation: 'vertical'
+        
+        InputGrid:
+            id: input_grid
+            cols: 3
+            spacing: 10
+            size_hint: None, None
+            height: "150dp"
+            width: "150dp"
+
+        CustomButton:
+            pos_hint: {'x': 0.5, 'center_y': 0.5}
+            text: "Set"
+            size_hint: None, None
+            height: "50dp"
+            width: "100dp"
+            on_press: root.validate(root)
+
+
+<PuzzlePiece>:
+    background_color: (0, 0, 0, 0)  
+    background_normal: ''
+    font_size: 36
+    color: (1, 1, 1, 1) 
+
+    canvas.before:
+        Color:
+            rgba: (0, 0, 0, 0.3) 
+        RoundedRectangle:
+            size: (self.width - 6, self.height - 6) 
+            pos: (self.x + 6, self.y - 6)  
+            radius: [20]
+
+        Color:
+            rgba: (0.8, 0.8, 0.8, 0.8) 
+        RoundedRectangle:
+            size: (self.width +2, self.height +2)  
+            pos: (self.x - 2, self.y + 2) 
+            radius: [20] 
+
+        Color:
+            rgba: (0.4, 0.4, 0.4, 1)  
+        RoundedRectangle:
+            size: (self.width+2, self.height+2)  
+            pos: (self.x+2, self.y-2)  
+            radius: [20]  
+        Color:
+            rgb: (0.4, 0.5, 0.8)   
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [20]
+
+
+
+
+
+<EmptyPiece>:
+    background_color:(0,0,0,0)
+    background_normal:''
+    font_size:36
+    canvas.before:
+        Color: 
+            rgba:(0.1, 0.2, 0.6,0.3)
+        RoundedRectangle:
+            size:self.size
+            pos:self.pos
+            radius:[20]   
+<CustomButton@Button>:
+    background_color:(0,0,0,0)
+    background_normal:''
+    font_size:24
+    font_family: 'Roboto'
+    canvas.before:
+        Color: 
+            rgb:(0.1, 0.2, 0.6)
+        RoundedRectangle:
+            size:self.size
+            pos:self.pos
+            radius:[30]             
+<Wrapper>:
+    padding: ('20dp', '20dp', '20dp', '20dp')
+    canvas.before:
+        Rectangle:
+            size: self.size
+            source: "Untitled design(2).png"    
+    orientation: "vertical"
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, 1)
+        padding: ('10dp', '10dp', '10dp', '10dp')
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}  
+
+        FloatLayout:
+            spacing:dp(10)
+            InputPositions:
+                size_hint: None,None
+                pos_hint: {'center_x': 0.09, 'center_y': 0.3} 
+
+            PuzzleGrid:
+                id:puzzle_grid  
+                size_hint: None,None
+                height:"300dp"
+                width:"300dp"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}  
+                spacing: dp(10)
+                padding: ('20dp', '20dp', '20dp', '20dp')
+                canvas.before:
+                    Color:
+                        rgba: (0, 0, 0, 0.2)
+                    RoundedRectangle:
+                        pos: self.pos 
+                        size: self.size
+                        radius: [20]
+
+    Label:
+        text: ''
+        size_hint: (1, None)
+        height: "50dp"
+
+    GridLayout:
+        rows: 2
+        cols: 3
+        spacing: dp(20)
+        padding: ('10dp', '10dp', '10dp', '10dp')
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        size_hint: (None, None)
+        height: "150dp"
+        width: "500dp"
+
+        CustomButton:
+            text: "BFS"
+            on_press: puzzle_grid.solve_puzzle("bfs")
+
+        CustomButton:
+            text: "DFS"
+            on_press:puzzle_grid.solve_puzzle("dfs")
+
+        CustomButton:
+            text: "IDS"
+            on_press:puzzle_grid.solve_puzzle("ids")
+
+        CustomButton:
+            text: "A*"
+            on_press:puzzle_grid.solve_puzzle("a_star")
+
+        CustomButton:
+            text: "Stop"
+
+        CustomButton:
+            text: "Reset"
