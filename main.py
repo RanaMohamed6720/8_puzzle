@@ -8,6 +8,7 @@ from kivy.uix.textinput import TextInput
 from kivy.metrics import dp
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+import time
 
 
 class Wrapper(BoxLayout):
@@ -27,104 +28,138 @@ class PuzzleGrid(GridLayout):
         super().__init__(**kwargs)
         self.rows = 3
         self.cols = 3
-        self.pieces = [i for i in range(0, 9)]
+        self.pieces = 12345678
         self.space = 0
-        for i in range(9):
-            b = EmptyPiece(text=str(i)) if i == 0 else PuzzlePiece(text=str(i))
+        self.build_board()
+
+    def board_str(self):
+        return "0"+f"{self.pieces}" if(len(str(self.pieces))==8) else f"{self.pieces}"
+    
+    def build_board(self):
+        pieces = self.board_str()
+        for i in pieces:
+            b = EmptyPiece(text=str(i)) if i == "0" else PuzzlePiece(text=str(i))
             b.bind(on_press=self.on_piece_move)
             self.add_widget(b)
 
     def on_piece_move(self, puzzle_piece):
         index = self.children[::-1].index(puzzle_piece)
-        if self.can_move( self.space,index):
-            self.swap_widgets(index, self.space)
-            self.pieces[self.space], self.pieces[index] = self.pieces[index], self.pieces[self.space]
+        if self.can_move(self.space, index):
+            self.pieces = self.swap_values(self.pieces, self.space, index)
             self.space = index
             self.update_board()
 
     def can_move(self, piece1_index, piece2_index):
-        if abs(piece1_index - piece2_index) == 1 or abs(piece1_index - piece2_index) == 3:
+        row1, col1 = (piece1_index // 3) ,(piece1_index % 3)
+        row2, col2 = (piece2_index // 3) ,(piece2_index % 3)
+        if (row1 == row2 and abs(col1 - col2) == 1) or (col1 == col2 and abs(row1 - row2) == 1):
             return True
         return False
 
+    def swap_values(self, board, index1, index2):
+        board_str = "0"+f"{board}" if(len(str(board))==8) else f"{board}"
+        if index1 != index2:
+            if index1 > index2:  
+                index1, index2 = index2, index1
+            board_str = board_str[:index1] + board_str[index2] + board_str[index1 + 1:index2] + board_str[index1] + board_str[index2 + 1:]
+        return int(board_str)
+
     def update_board(self):
-        for i in range(9):
-            self.children[(i - 8) * -1].text = str(self.pieces[i])
+        self.clear_widgets()
+        self.build_board()
+        
 
-    def swap_widgets(self, index1, index2):
-        if index1 == index2:
-            return
-        widget1 = self.children[(index1 - 8) * -1]
-        widget2 = self.children[(index2 - 8) * -1]
-        self.remove_widget(widget1)
-        self.remove_widget(widget2)
-        self.add_widget(widget1, (index2 - 8) * -1)
-        self.add_widget(widget2, (index1 - 8) * -1)
-
-    def set_board(self, values):
-        self.pieces = values
-        index_of_zero = self.pieces.index(0)
-        self.swap_widgets(self.space, index_of_zero)
-        self.space = index_of_zero
+    def set_board(self, board):
+        print(board)
+        self.pieces = board
+        self.space = self.board_str().index("0")
         self.update_board()
 
     def solve_puzzle(self, algorithm):
-        solver = PuzzleSolver(self.pieces, self.space)
+        solver = PuzzleSolver(self.pieces,self.board_str().index("0"))
         if algorithm == "bfs":
-            solution_path = solver.bfs_solver()
+            actions, cost, nodes_expanded, search_depth, running_time = solver.bfs_solver()
+            print("actions:", actions)
+            print("cost:", cost)
+            print("nodes expanded:", nodes_expanded)
+            print("search depth:", search_depth)
+            print("running time:", running_time)
         elif algorithm == "dfs":
-            solution_path = solver.dfs_solver()
+            actions, cost, nodes_expanded, search_depth, running_time  = solver.dfs_solver()
         elif algorithm == "ids":
-            solution_path = solver.ids_solver()
+            actions, cost, nodes_expanded, search_depth, running_time = solver.ids_solver()
         elif algorithm == "a_star":
-            solution_path = solver.a_star_solver()
+            actions, cost, nodes_expanded, search_depth, running_time  = solver.a_star_solver()
 
-        if solution_path:
-            for state in solution_path:
-                self.set_board(list(state))
-                print(state)
-        else:
-            print("No solution found")
+
 
 
 class PuzzleSolver:
-    def __init__(self, initial_board, empty_index):
+    def __init__(self, initial_board,space_index):
         self.initial_board = initial_board
-        self.empty_index = empty_index
-        self.target_state = (0, 1, 2, 3, 4, 5, 6, 7, 8)
-
-    def neighbors(self, state, empty_index):
+        self.target_state = 12345678
+        self.space = space_index
+    #  get neighbors in a string is swapping the zero with character at 
+    #  index -1 / index +1 / index -3 / index +3 considering the borders
+    def neighbors(self, state):
         neighbors = []
-        row, col = empty_index // 3, empty_index % 3
+        state_str = "0" + f"{state}" if(len(str(state))==8) else f"{state}"  
+        zero_index = state_str.index("0")
+        row, col = zero_index // 3, zero_index % 3
+        movements = [(-1, 0,'up'), (0, 1,'right'), (0, -1,'left'), (1, 0,'down')]
+        for dr , dc,action in movements:
+            new_row , new_col = row + dr , col + dc
 
-        for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
-            new_row, new_col = row + dr, col + dc
-            if 0 <= new_row < 3 and 0 <= new_col < 3:
+            if(0<= new_row < 3 and 0 <= new_col < 3):
                 new_index = new_row * 3 + new_col
-                new_state = list(state)
-                new_state[empty_index], new_state[new_index] = new_state[new_index], new_state[empty_index]
-                neighbors.append((tuple(new_state), new_index))
-
+                index = zero_index
+                if(index >= new_index):
+                    index , new_index = new_index , index
+                child = (
+                    state_str[:index] +
+                    state_str[new_index] +
+                    state_str[index + 1:new_index] +
+                    state_str[index] +
+                    state_str[new_index + 1:]
+                )
+                neighbors.append((child,action))
         return neighbors
 
     def bfs_solver(self):
-        zero_pos = self.initial_board.index(0)
-        start_state = tuple(self.initial_board)
-        queue = deque([(start_state, zero_pos)])
-        visited = {start_state: None}
+        frontier = deque()
+        frontier.append((self.initial_board))
+        visited = set()
+        visited.add(self.initial_board)
+        nodes_expanded = 0
+        depth = 0
+        cost = 0
+        parents = {self.initial_board:(None,None)}
+        start_time = time.time()
+        while frontier:
+            current_state = frontier.popleft()
+            visited.add(current_state)
+            nodes_expanded += 1
+        
 
-        while queue:
-            current_state, current_zero_pos = queue.popleft()
+            if int(current_state) == (self.target_state):
+                end_time = time.time()
+                path,actions = self.construct_solution(parents,current_state)
+                cost = len(path) - 1
+                return actions,cost,nodes_expanded , depth,(end_time-start_time)
+            for neighbor,action in self.neighbors(current_state):
+                if neighbor not in visited and neighbor not in frontier: 
+                    frontier.append(neighbor)
+                    parents[neighbor] = (current_state,action)
+                    if(int(neighbor) == (self.target_state)):
+                        end_time = time.time()
+                        parents[123456789] = (neighbor,action)
+                        path,actions = self.construct_solution(parents,neighbor)
+                        cost = len(path) - 1
+                        return actions,cost,nodes_expanded , depth,(end_time-start_time)
+            depth += 1
+                    
 
-            if current_state == self.target_state:
-                return self.construct_solution(visited, current_state)
-
-            for neighbor, new_zero_pos in self.neighbors(current_state, current_zero_pos):
-                if neighbor not in visited:
-                    visited[neighbor] = current_state
-                    queue.append((neighbor, new_zero_pos))
-
-        return None
+        return "No solution" 
 
     def dfs_solver(self):
         pass
@@ -135,18 +170,23 @@ class PuzzleSolver:
     def a_star_solver(self):
         pass
 
-    def construct_solution(self, visited, final_state):
+    def construct_solution(self, parents, final_state):
         path = []
+        actions = []
         while final_state is not None:
+            parent_state , action = parents[final_state]
+            if(action is not None):
+                actions.append(action)
             path.append(final_state)
-            final_state = visited[final_state]
-        return path[::-1]
+            final_state = parent_state
+        print(path)
+        return path[::-1],actions[::-1]
 
 
 class InputPositions(BoxLayout):
     def validate(self, layout):
         input_grid = layout.ids.input_grid
-        values = []
+        board_str = ""
 
         for widget in input_grid.children:
             if isinstance(widget, CustomInputField):
@@ -159,19 +199,21 @@ class InputPositions(BoxLayout):
                     if num < 0 or num > 8:
                         self.show_popup("Value must be between 0 and 8.")
                         return
-                    if num in values:
+                    if str(num) in board_str:
                         self.show_popup("Duplicates not allowed.")
                         return
-                    values.append(num)
+                    board_str += str(num)
                 except ValueError:
                     self.show_popup("Invalid input. Please enter a number.")
                     return
-
+        board_str=board_str[::-1]
+        board = int(board_str)
         for child in self.parent.children:
             if isinstance(child, PuzzleGrid):
                 puzzle_grid = child
                 break
-        puzzle_grid.set_board(values[::-1])
+        puzzle_grid.set_board(board)
+
 
     def show_popup(self, message):
         popup = Popup(title='Validation Error', content=Label(text=message), size_hint=(None, None), size=(400, 200))
