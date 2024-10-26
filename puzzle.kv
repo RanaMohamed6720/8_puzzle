@@ -134,10 +134,17 @@ Wrapper:
                         size: self.size
                         radius: [20]
 
-    Label:
-        text: ''
-        size_hint: (1, None)
+    CustomButton:
+        text: 'Show Results'
+        size_hint: (None, None)
         height: "50dp"
+        width:"200dp"
+        pos_hint: {"center_x":0.5}
+        on_press: puzzle_grid.show_results()
+    Label:
+        text:''
+        size_hint:(1,None)
+        height:'20dp'
 
     GridLayout:
         rows: 2

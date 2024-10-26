@@ -26,6 +26,7 @@ class EmptyPiece(Button):
 
 class PuzzleGrid(GridLayout):
     animating = BooleanProperty(False)
+    results_popup =  Popup(title='Puzzle Results',content=Label(text='No results to be shown'), size_hint=(None, None), size=(800, 700))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -88,15 +89,26 @@ class PuzzleGrid(GridLayout):
                     print(result)
                 else:
                     actions, cost, nodes_expanded, search_depth, running_time = result
-                    print("actions:", actions)
-                    print("cost:", cost)
-                    print("nodes expanded:", nodes_expanded)
-                    print("search depth:", search_depth)
-                    print("running time:", running_time)
+                    self.show_results_popup(actions, cost, nodes_expanded, search_depth, running_time)
+                    # print("actions:", actions)
+                    # print("cost:", cost)
+                    # print("nodes expanded:", nodes_expanded)
+                    # print("search depth:", search_depth)
+                    # print("running time:", running_time)
                     self.solution_actions = actions
                     self.animating = True
                     self.move_step_by_step()
-
+    def show_results(self):
+        self.results_popup.open()
+    def show_results_popup(self,actions, cost, nodes_expanded, search_depth, running_time):
+        results_str =(
+            f"Actions: {actions}\n\n"
+            f"Cost: {cost}\n\n"
+            f"Nodes Expanded: {nodes_expanded}\n\n"
+            f"Search Depth: {search_depth}\n\n"
+            f"Running Time: {running_time:.6f} seconds"
+        )
+        self.results_popup = Popup(title='Puzzle Results',content=Label(text=results_str,text_size=(380, None)), size_hint=(None, None), size=(800, 700))
     def move_step_by_step(self, *args):
         if self.solution_actions:
             action = self.solution_actions.pop(0)
