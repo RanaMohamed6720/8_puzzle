@@ -76,21 +76,26 @@ class PuzzleGrid(GridLayout):
         self.update_board()
 
     def solve_puzzle(self, algorithm):
-        solver = PuzzleSolver(self.pieces,self.board_str().index("0"))
+        solver = PuzzleSolver(self.pieces, self.board_str().index("0"))
 
         if algorithm == "bfs":
-            actions, cost, nodes_expanded, search_depth, running_time = solver.bfs_solver()
-            print("actions:", actions)
-            print("cost:", cost)
-            print("nodes expanded:", nodes_expanded)
-            print("search depth:", search_depth)
-            print("running time:", running_time)
+            result = solver.bfs_solver()
+            if isinstance(result, str):
+                print(result)
+            else:
+                actions, cost, nodes_expanded, search_depth, running_time = result
+                print("actions:", actions)
+                print("cost:", cost)
+                print("nodes expanded:", nodes_expanded)
+                print("search depth:", search_depth)
+                print("running time:", running_time)
         elif algorithm == "dfs":
-            actions, cost, nodes_expanded, search_depth, running_time  = solver.dfs_solver()
+            result = solver.dfs_solver()
         elif algorithm == "ids":
-            actions, cost, nodes_expanded, search_depth, running_time = solver.ids_solver()
+            result = solver.ids_solver()
         elif algorithm == "a_star":
-            actions, cost, nodes_expanded, search_depth, running_time  = solver.a_star_solver()
+            result = solver.a_star_solver()
+
 
 
 
@@ -128,8 +133,7 @@ class PuzzleSolver:
 
     def bfs_solver(self):
         if(self.initial_board == 12345678):
-            print("Already solved")
-            return [], 0, 0, 0, 0
+            return "Already Solved"
         frontier = deque([(self.initial_board, 1)])  # each state in the frontier has a state of the board , depth
         visited = set()
         visited.add(self.initial_board)
