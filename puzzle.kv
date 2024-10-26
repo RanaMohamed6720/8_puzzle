@@ -27,11 +27,13 @@ Wrapper:
             width: "150dp"
 
         CustomButton:
+            id: set_button
             pos_hint: {'x': 0.5, 'center_y': 0.5}
             text: "Set"
             size_hint: None, None
             height: "50dp"
             width: "100dp"
+            disabled:False
             on_press: root.validate(root)
 
 
@@ -149,23 +151,29 @@ Wrapper:
 
         CustomButton:
             text: "BFS"
+            disabled: puzzle_grid.animating
             on_press: puzzle_grid.solve_puzzle("bfs")
 
         CustomButton:
             text: "DFS"
+            disabled: puzzle_grid.animating
             on_press:puzzle_grid.solve_puzzle("dfs")
 
         CustomButton:
             text: "IDS"
+            disabled: puzzle_grid.animating
             on_press:puzzle_grid.solve_puzzle("ids")
 
         CustomButton:
             text: "A*"
+            disabled: puzzle_grid.animating
             on_press:puzzle_grid.solve_puzzle("a_star")
 
         CustomButton:
             text: "Stop"
+            on_press: puzzle_grid.stop_animation()
 
         CustomButton:
             text: "Reset"
-            on_press: puzzle_grid.set_board(12345678)
+            disabled: puzzle_grid.animating
+            on_press: puzzle_grid.reset_board()

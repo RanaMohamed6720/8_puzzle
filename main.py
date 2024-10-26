@@ -9,7 +9,8 @@ from kivy.metrics import dp
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 import time
-
+from kivy.clock import Clock
+from kivy.properties import BooleanProperty
 
 class Wrapper(BoxLayout):
     pass
@@ -24,6 +25,8 @@ class EmptyPiece(Button):
 
 
 class PuzzleGrid(GridLayout):
+    animating = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.rows = 3
@@ -75,26 +78,60 @@ class PuzzleGrid(GridLayout):
         self.space = self.board_str().index("0")
         self.update_board()
 
-    def solve_puzzle(self, algorithm):
-        solver = PuzzleSolver(self.pieces, self.board_str().index("0"))
 
-        if algorithm == "bfs":
-            result = solver.bfs_solver()
-            if isinstance(result, str):
-                print(result)
+    def solve_puzzle(self, algorithm):
+        if not self.animating:  
+            solver = PuzzleSolver(self.pieces, self.board_str().index("0"))
+            if algorithm == "bfs":
+                result = solver.bfs_solver()
+                if isinstance(result, str):
+                    print(result)
+                else:
+                    actions, cost, nodes_expanded, search_depth, running_time = result
+                    print("actions:", actions)
+                    print("cost:", cost)
+                    print("nodes expanded:", nodes_expanded)
+                    print("search depth:", search_depth)
+                    print("running time:", running_time)
+                    self.solution_actions = actions
+                    self.animating = True
+                    self.move_step_by_step()
+
+    def move_step_by_step(self, *args):
+        if self.solution_actions:
+            action = self.solution_actions.pop(0)
+            self.apply_move(action)
+            time.sleep(0.5)
+            if self.solution_actions:
+                Clock.schedule_once(self.move_step_by_step, 0.3)
             else:
-                actions, cost, nodes_expanded, search_depth, running_time = result
-                print("actions:", actions)
-                print("cost:", cost)
-                print("nodes expanded:", nodes_expanded)
-                print("search depth:", search_depth)
-                print("running time:", running_time)
-        elif algorithm == "dfs":
-            result = solver.dfs_solver()
-        elif algorithm == "ids":
-            result = solver.ids_solver()
-        elif algorithm == "a_star":
-            result = solver.a_star_solver()
+                self.animating = False
+        else:
+            self.animating = False
+
+    def apply_move(self, action):
+        space_index = self.space
+        if action == "up":
+            target_index = space_index - 3
+        elif action == "down":
+            target_index = space_index + 3
+        elif action == "left":
+            target_index = space_index - 1
+        elif action == "right":
+            target_index = space_index + 1
+        else:
+            return
+        self.pieces = self.swap_values(self.pieces, space_index, target_index)
+        self.space = target_index
+        self.update_board()
+
+    def stop_animation(self):
+        self.solution_actions = []
+        self.animating = False
+
+    def reset_board(self):
+        if not self.animating:
+            self.set_board(12345678)
 
 
 
