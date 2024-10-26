@@ -77,9 +77,8 @@ class PuzzleGrid(GridLayout):
 
     def solve_puzzle(self, algorithm):
         solver = PuzzleSolver(self.pieces,self.board_str().index("0"))
-        if(self.pieces == 12345678):
-            print("Already solved")
-        elif algorithm == "bfs":
+
+        if algorithm == "bfs":
             actions, cost, nodes_expanded, search_depth, running_time = solver.bfs_solver()
             print("actions:", actions)
             print("cost:", cost)
@@ -128,33 +127,34 @@ class PuzzleSolver:
         return neighbors
 
     def bfs_solver(self):
-        frontier = deque()
-        frontier.append((self.initial_board))
+        if(self.initial_board == 12345678):
+            print("Already solved")
+            return [], 0, 0, 0, 0
+        frontier = deque([(self.initial_board, 1)])  # each state in the frontier has a state of the board , depth
         visited = set()
         visited.add(self.initial_board)
         nodes_expanded = 0
-        depth = 0
-        cost = 0
-        parents = {self.initial_board:(None,None)}
+        max_depth = 0
+        parents = {self.initial_board: (None, None)}
         start_time = time.time()
-        while frontier:
-            current_state = frontier.popleft()
-            visited.add(current_state)
-            nodes_expanded += 1
-            for neighbor,action in self.neighbors(current_state):
-                if neighbor not in visited and neighbor not in frontier: 
-                    frontier.append(neighbor)
-                    parents[neighbor] = (current_state,action)
-                    if(int(neighbor) == (self.target_state)):
-                        end_time = time.time()
-                        parents[123456789] = (neighbor,action)
-                        path,actions = self.construct_solution(parents,neighbor)
-                        cost = len(path) - 1
-                        return actions,cost,nodes_expanded , depth,(end_time-start_time)
-            depth += 1
-                    
 
-        return "No solution" 
+        while frontier:
+            current_state, current_depth = frontier.popleft()
+            nodes_expanded += 1
+            max_depth = max(max_depth, current_depth)
+            for neighbor, action in self.neighbors(current_state):
+                if neighbor not in visited:
+                    frontier.append((neighbor, current_depth + 1)) 
+                    visited.add(neighbor)
+                    parents[neighbor] = (current_state, action)
+                    if int(neighbor) == self.target_state:
+                        end_time = time.time()
+                        path, actions = self.construct_solution(parents, neighbor)
+                        cost = len(path) - 1  
+                        return actions, cost, nodes_expanded, max_depth, (end_time - start_time)
+
+        return "No solution"
+
 
     def dfs_solver(self):
         pass
