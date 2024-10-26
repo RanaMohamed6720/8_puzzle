@@ -77,7 +77,9 @@ class PuzzleGrid(GridLayout):
 
     def solve_puzzle(self, algorithm):
         solver = PuzzleSolver(self.pieces,self.board_str().index("0"))
-        if algorithm == "bfs":
+        if(self.pieces == 12345678):
+            print("Already solved")
+        elif algorithm == "bfs":
             actions, cost, nodes_expanded, search_depth, running_time = solver.bfs_solver()
             print("actions:", actions)
             print("cost:", cost)
@@ -139,13 +141,6 @@ class PuzzleSolver:
             current_state = frontier.popleft()
             visited.add(current_state)
             nodes_expanded += 1
-        
-
-            if int(current_state) == (self.target_state):
-                end_time = time.time()
-                path,actions = self.construct_solution(parents,current_state)
-                cost = len(path) - 1
-                return actions,cost,nodes_expanded , depth,(end_time-start_time)
             for neighbor,action in self.neighbors(current_state):
                 if neighbor not in visited and neighbor not in frontier: 
                     frontier.append(neighbor)
