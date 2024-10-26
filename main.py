@@ -147,7 +147,7 @@ class PuzzleSolver:
             nodes_expanded += 1
             max_depth = max(max_depth, current_depth)
             for neighbor, action in self.neighbors(current_state):
-                if neighbor not in visited:
+                if neighbor not in visited and neighbor not in frontier:
                     frontier.append((neighbor, current_depth + 1)) 
                     visited.add(neighbor)
                     parents[neighbor] = (current_state, action)
