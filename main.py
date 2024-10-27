@@ -244,18 +244,14 @@ class PuzzleSolver:
         explored = set()
         explored.add(self.initial_board)
 
-        parent = ['left']
+        parents = {self.initial_board: (None, None)}
         expanded = 0
         start_time = time.time()
+        max_depth = 0
 
         while frontier:
-            cost, cur_depth, state = heappop(frontier)
-
-            if self.target_state == int(state):
-                end_time = time.time()
-                total_time = end_time - start_time
-                return parent, cost, expanded, cur_depth, total_time
-
+            _, cur_depth, state = heappop(frontier)
+            max_depth = max(max_depth, cur_depth)
             expanded += 1
 
             for child, action, row, col, num in self.neighbors(state):
@@ -263,8 +259,15 @@ class PuzzleSolver:
                     g = cur_depth + 1
                     h = self.Euclidean_Distance_Heuristic(row, col, num) if heuristic == 'euclidean' else self.Manhattan_Distance_Heuristic(row, col, num)
                     f = g + h
+                    parents[child] = (state, action)
                     heappush(frontier, (f, g, child))
                     explored.add(child)
+                if self.target_state == int(child):
+                    end_time = time.time()
+                    total_time = end_time - start_time
+                    path, actions = self.construct_solution(parents, child)
+                    cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1
+                    return actions, cost, expanded, max(max_depth, cur_depth + 1), total_time
 
     def Manhattan_Distance_Heuristic(self, current_x, curretn_y, num):
         goal_x, goal_y = num // 3, num % 3
