@@ -88,17 +88,32 @@ Wrapper:
             pos:self.pos
             radius:[20]   
 <CustomButton@Button>:
-    background_color:(0,0,0,0)
+    background_color:(0,0,0,0) 
     background_normal:''
     font_size:24
-    font_family: 'Roboto'
+    font_family:'Roboto'
     canvas.before:
-        Color: 
-            rgb:(0.1, 0.2, 0.6)
+        Color:
+            rgba:(0, 0, 0, 0.25)
         RoundedRectangle:
-            size:self.size
-            pos:self.pos
-            radius:[30]             
+            size: self.width+4, self.height+4
+            pos: self.x-2, self.y-2
+            radius: [30]
+        Color: 
+            rgb: (0.1, 0.2, 0.6) if self.state == 'normal' else (0.05, 0.1, 0.4)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [30]
+        Color:
+            rgba: (1, 1, 1, 0.15)
+        RoundedRectangle:
+            size: self.width, self.height/2
+            pos: self.pos[0], self.pos[1] + self.height/2
+            radius: [30, 30, 0, 0]
+
+
+            
 <Wrapper>:
     padding: ('20dp', '20dp', '20dp', '20dp')
     canvas.before:
