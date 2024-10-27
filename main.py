@@ -1,5 +1,6 @@
 from collections import deque
-import heapq
+from heapq import heappop
+from heapq import heappush
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -11,7 +12,7 @@ from kivy.uix.label import Label
 import time
 from kivy.clock import Clock
 from kivy.properties import BooleanProperty
-
+import math
 
 class Wrapper(BoxLayout):
     pass
@@ -92,9 +93,9 @@ class PuzzleGrid(GridLayout):
             elif algorithm == "ids":
                 result = solver.ids_solver()
             elif algorithm == "manhattan_a_star":
-                result = solver.manhattan_a_star_solver()
+                result = solver.a_star_solver('manhattan')
             elif algorithm == "euclidean_a_star":
-                result = solver.euclidean_a_star_solver()
+                result = solver.a_star_solver('euclidean')
             
             if result == "Already Solved":
                 self.show_results_popup("The puzzle is already solved.")
@@ -180,6 +181,7 @@ class PuzzleSolver:
 
             if(0<= new_row < 3 and 0 <= new_col < 3):
                 new_index = new_row * 3 + new_col
+                num = state_str[new_index]
                 index = zero_index
                 if(index >= new_index):
                     index , new_index = new_index , index
@@ -190,7 +192,7 @@ class PuzzleSolver:
                     state_str[index] +
                     state_str[new_index + 1:]
                 )
-                neighbors.append((child,action))
+                neighbors.append((child, action, new_row, new_col, int(num)))
         return neighbors
 
     def bfs_solver(self):
@@ -208,7 +210,7 @@ class PuzzleSolver:
             current_state, current_depth = frontier.popleft()
             nodes_expanded += 1
             max_depth = max(max_depth, current_depth)
-            for neighbor, action in self.neighbors(current_state):
+            for neighbor, action, _, _, _ in self.neighbors(current_state):
                 if neighbor not in visited and neighbor not in frontier:
                     frontier.append((neighbor, current_depth + 1)) 
                     visited.add(neighbor)
@@ -228,11 +230,44 @@ class PuzzleSolver:
     def ids_solver(self):
         pass
 
-    def manhattan_a_star_solver(self):
-        pass
-    
-    def euclidean_a_star_solver(self):
-        pass
+    def a_star_solver(self, heuristic='euclidean'):
+        if(self.initial_board == 12345678):
+            return "Already Solved"
+        frontier = []
+        heappush(frontier, (0, 0, self.initial_board))
+
+        explored = set()
+        explored.add(self.initial_board)
+
+        parent = ['left']
+        expanded = 0
+        start_time = time.time()
+
+        while frontier:
+            cost, cur_depth, state = heappop(frontier)
+
+            if self.target_state == int(state):
+                end_time = time.time()
+                total_time = end_time - start_time
+                return parent, cost, expanded, cur_depth, total_time
+
+            expanded += 1
+
+            for child, action, row, col, num in self.neighbors(state):
+                if child not in explored and child not in frontier:
+                    g = cur_depth + 1
+                    h = self.Euclidean_Distance_Heuristic(row, col, num) if heuristic == 'euclidean' else self.Manhattan_Distance_Heuristic(row, col, num)
+                    f = g + h
+                    heappush(frontier, (f, g, child))
+                    explored.add(child)
+
+    def Manhattan_Distance_Heuristic(self, current_x, curretn_y, num):
+        goal_x, goal_y = num // 3, num % 3
+        return abs(current_x - goal_x) + abs(curretn_y - goal_y)
+
+    def Euclidean_Distance_Heuristic(self, current_x, curretn_y, num):
+        goal_x, goal_y = num // 3, num % 3
+        return math.sqrt((current_x - goal_x) ** 2 + (curretn_y - goal_y) ** 2)
 
     def construct_solution(self, parents, final_state):
         path = []
