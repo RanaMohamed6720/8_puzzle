@@ -12,6 +12,7 @@ import time
 from kivy.clock import Clock
 from kivy.properties import BooleanProperty
 
+
 class Wrapper(BoxLayout):
     pass
 
@@ -101,8 +102,9 @@ class PuzzleGrid(GridLayout):
                 self.show_results_popup("No solution exists for this puzzle.")
             else:
                 actions, cost, nodes_expanded, search_depth, running_time = result
+                actions_str = " -> ".join(actions)
                 self.show_results_popup(
-                    f"Actions: {actions}\n\n"
+                    f"Actions: {actions_str}\n\n"
                     f"Cost: {cost}\n\n"
                     f"Nodes Expanded: {nodes_expanded}\n\n"
                     f"Search Depth: {search_depth}\n\n"
