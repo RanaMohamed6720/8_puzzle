@@ -34,54 +34,58 @@ class PuzzleGrid(GridLayout):
         super().__init__(**kwargs)
         self.rows = 3
         self.cols = 3
-        self.pieces = 12345678
-        self.space = 0
+        self.pieces = 12345678  #initial state of the puzzle
+        self.space = 0          #initial position of the empty spot
         self.build_board()
-
+    # method to convert the integer representation of the board to a string
     def board_str(self):
         return "0"+f"{self.pieces}" if(len(str(self.pieces))==8) else f"{self.pieces}"
-    
+    # method to build the puzzle board by creating a widget for each piece
     def build_board(self):
         pieces = self.board_str()
         for i in pieces:
             b = EmptyPiece(text=str(i)) if i == "0" else PuzzlePiece(text=str(i))
             b.bind(on_press=self.on_piece_move)
             self.add_widget(b)
-
+    # handles the logic when a piece is clicked to be moved
     def on_piece_move(self, puzzle_piece):
-        index = self.children[::-1].index(puzzle_piece)
-        if self.can_move(self.space, index):
-            self.pieces = self.swap_values(self.pieces, self.space, index)
-            self.space = index
-            self.update_board()
-
+        index = self.children[::-1].index(puzzle_piece)             #getting the index of the clicked piece
+        if self.can_move(self.space, index):                        #check if the move is valid
+            self.pieces = self.swap_values(self.space, index)       #swap the values in the board representation
+            self.space = index                                      # update the position of the empty spot
+            self.update_board()                                     # update the gui
+    # method to check if a piece can be swapped with the space
     def can_move(self, piece1_index, piece2_index):
         row1, col1 = (piece1_index // 3) ,(piece1_index % 3)
         row2, col2 = (piece2_index // 3) ,(piece2_index % 3)
+        # check if they are adjacent in the row or the column
         if (row1 == row2 and abs(col1 - col2) == 1) or (col1 == col2 and abs(row1 - row2) == 1):
             return True
         return False
-
-    def swap_values(self, board, index1, index2):
-        board_str = "0"+f"{board}" if(len(str(board))==8) else f"{board}"
+    # swaps the values of two pieces in the board state
+    # by reconstructing the board string around the indices
+    def swap_values(self, index1, index2):
+        board_str = self.board_str()
         if index1 != index2:
             if index1 > index2:  
                 index1, index2 = index2, index1
             board_str = board_str[:index1] + board_str[index2] + board_str[index1 + 1:index2] + board_str[index1] + board_str[index2 + 1:]
         return int(board_str)
-
+    # updating the gui display of the board after a piece has moved
+    # by clearing the widgets and rebuilding the board
     def update_board(self):
         self.clear_widgets()
         self.build_board()
         
-
+    # method to set the board pieces according to the input boxes
     def set_board(self, board):
         print(board)
         self.pieces = board
         self.space = self.board_str().index("0")
         self.update_board()
 
-
+    # method that handles the solution of the puzzle upon clicking on 
+    # on of the algorithms buttons 
     def solve_puzzle(self, algorithm):
         if not self.animating:
             solver = PuzzleSolver(self.pieces, self.board_str().index("0"))
@@ -122,19 +126,16 @@ class PuzzleGrid(GridLayout):
         
     def show_results(self):
         self.results_popup.open()
-
+    # method to visualize the solution on the board
     def move_step_by_step(self, *args):
         if self.solution_actions:
             action = self.solution_actions.pop(0)
             self.apply_move(action)
-            time.sleep(0.5)
-            if self.solution_actions:
-                Clock.schedule_once(self.move_step_by_step, 0.3)
-            else:
-                self.animating = False
+            # scheduling the rest of the actions after small delay
+            Clock.schedule_once(self.move_step_by_step, 0.5)
         else:
-            self.animating = False
-
+            self.animating = False # displaying of the result is done
+    # method to apply a specific action on the board
     def apply_move(self, action):
         space_index = self.space
         if action == "up":
@@ -147,7 +148,7 @@ class PuzzleGrid(GridLayout):
             target_index = space_index + 1
         else:
             return
-        self.pieces = self.swap_values(self.pieces, space_index, target_index)
+        self.pieces = self.swap_values(space_index, target_index)
         self.space = target_index
         self.update_board()
 
@@ -162,7 +163,7 @@ class PuzzleGrid(GridLayout):
 
 
 
-
+# class that contains algorithms implementation
 class PuzzleSolver:
     def __init__(self, initial_board,space_index):
         self.initial_board = initial_board
@@ -196,32 +197,36 @@ class PuzzleSolver:
         return neighbors
 
     def bfs_solver(self):
+        # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
         frontier = deque([(self.initial_board, 1)])  # each state in the frontier has a state of the board , depth
-        visited = set()
-        visited.add(self.initial_board)
+        visited = set() 
+        visited.add(self.initial_board) # mark the initial state as visited
         nodes_expanded = 0
         max_depth = 0
-        parents = {self.initial_board: (None, None)}
-        start_time = time.time()
+        parents = {self.initial_board: (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
+        start_time = time.time() 
 
         while frontier:
+            # 1- pop
             current_state, current_depth = frontier.popleft()
             nodes_expanded += 1
             max_depth = max(max_depth, current_depth)
+            # 2- explore neighbors
             for neighbor, action, _, _, _ in self.neighbors(current_state):
                 if neighbor not in visited and neighbor not in frontier:
                     frontier.append((neighbor, current_depth + 1)) 
                     visited.add(neighbor)
                     parents[neighbor] = (current_state, action)
-                    if int(neighbor) == self.target_state:
-                        end_time = time.time()
+                    # 3- check if it match the target state
+                    if int(neighbor) == self.target_state:# target is reached and algorithm terminate
+                        end_time = time.time() 
                         path, actions = self.construct_solution(parents, neighbor)
-                        cost = len(path) - 1  
+                        cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1 
                         return actions, cost, nodes_expanded, max_depth, (end_time - start_time)
 
-        return "No solution"
+        return "No solution" # if all nodes are explored then no solution for this puzzle
 
 
     def dfs_solver(self):
@@ -268,20 +273,21 @@ class PuzzleSolver:
     def Euclidean_Distance_Heuristic(self, current_x, curretn_y, num):
         goal_x, goal_y = num // 3, num % 3
         return math.sqrt((current_x - goal_x) ** 2 + (curretn_y - goal_y) ** 2)
-
+    # method to backtrack from the final state of the puzzle to the initial state to construct the solution path
     def construct_solution(self, parents, final_state):
         path = []
         actions = []
         while final_state is not None:
+            # retrieve the parent and the action that led to this state from parents dictionary
             parent_state , action = parents[final_state]
             if(action is not None):
                 actions.append(action)
             path.append(final_state)
-            final_state = parent_state
+            final_state = parent_state # moving a step back
         print(path)
-        return path[::-1],actions[::-1]
+        return path[::-1],actions[::-1] # reverse to start from the initial state
 
-
+# class to handle setting the board through the input boxes
 class InputPositions(BoxLayout):
     def validate(self, layout):
         input_grid = layout.ids.input_grid
