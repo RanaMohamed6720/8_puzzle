@@ -14,6 +14,9 @@ from kivy.clock import Clock
 from kivy.properties import BooleanProperty
 import math
 
+
+MAX_DEPTH = 100 # used with IDS
+
 class Wrapper(BoxLayout):
     pass
 
@@ -95,7 +98,7 @@ class PuzzleGrid(GridLayout):
             elif algorithm == "dfs":
                 result = solver.dfs_solver()
             elif algorithm == "ids":
-                result = solver.ids_solver()
+                result = solver.ids_solver(MAX_DEPTH)
             elif algorithm == "manhattan_a_star":
                 result = solver.a_star_solver('manhattan')
             elif algorithm == "euclidean_a_star":
@@ -169,6 +172,23 @@ class PuzzleSolver:
         self.initial_board = initial_board
         self.target_state = 12345678
         self.space = space_index
+
+     # counting number of inversions in the initial state to check if it is solvable
+    def count_inversions(self, state):
+        str_state = str(state).replace('0', '')  # ignore the empty tile
+        inversions = 0
+        for i in range(len(str_state)):
+            for j in range(i + 1, len(str_state)):
+                if str_state[i] > str_state[j]:
+                    inversions += 1
+        return inversions
+
+    # checking if the initial state is solvable
+    # solvable if the number of inversions is even, otherwise it is unsolvable
+    def is_solvable(self, state):
+        inversions = self.count_inversions(state)
+        return inversions % 2 == 0
+
     #  get neighbors in a string is swapping the zero with character at 
     #  index -1 / index +1 / index -3 / index +3 considering the borders
     def neighbors(self, state):
@@ -200,6 +220,8 @@ class PuzzleSolver:
         # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
+        if not self.is_solvable(self.initial_board):
+            return "No Solution"
         frontier = deque([(self.initial_board, 1)])  # each state in the frontier has a state of the board , depth
         visited = set() 
         visited.add(self.initial_board) # mark the initial state as visited
@@ -230,14 +252,77 @@ class PuzzleSolver:
 
 
     def dfs_solver(self):
-        pass
+        if(self.initial_board == 12345678):
+            return "Already Solved"
+        if not self.is_solvable(self.initial_board):
+            return "No Solution"
 
-    def ids_solver(self):
-        pass
+        frontier = [(self.initial_board, 0)]
+        explored = set()
+        parents = {self.initial_board: (None, None)}
+        max_depth = 0
 
+        start_time = time.time()
+        while frontier:
+            state, depth = frontier.pop()
+            explored.add(state)
+            max_depth = max(max_depth, depth)
+
+            for child, move, _, _, _ in self.neighbors(state):
+                if child not in frontier and child not in explored:
+                    frontier.append((child, depth+1))
+                    parents[child] = (state, move)
+
+                    if int(child) == self.target_state:
+                        end_time = time.time()
+                        path, moves = self.construct_solution(parents, child)
+                        return moves, len(path)-1, len(explored), max_depth, (end_time - start_time)
+        return "No Solution"
+
+    def dls_solver(self, state, goal_state, depth_limit):
+        frontier = [(state, 0)]
+        explored = set()
+        parents = {self.initial_board: (None, None)}
+        max_depth = 0
+
+        while frontier:
+            current_state, depth = frontier.pop()
+            explored.add(current_state)
+            max_depth = max(max_depth, depth)
+
+            if int(current_state) == goal_state:
+                path, moves = self.construct_solution(parents, current_state)
+                return moves, len(path)-1, len(explored), max_depth
+
+            if depth < depth_limit:
+                for child, move, _, _, _  in self.neighbors(current_state):
+                    if child not in frontier and child not in explored:
+                    # if depth + 1 < depth_limit:
+                        frontier.append((child, depth + 1))
+                        parents[child] = (current_state, move)
+        return "No Solution"
+
+
+    def ids_solver(self, max_depth):
+        if not self.is_solvable(self.initial_board):
+            return "No Solution"
+
+        start_time = time.time()
+        for depth_limit in range(max_depth):
+            result = self.dls_solver(self.initial_board, self.target_state, depth_limit)
+            end_time = time.time()
+            if result != "No Solution":
+                actions, cost, nodesExpanded, depth = result
+                return actions, cost, nodesExpanded, depth, (end_time - start_time)
+        return result
+
+################################################################### add the expanded in the return or not ? #############################################################################
     def a_star_solver(self, heuristic='euclidean'):
         if(self.initial_board == 12345678):
             return "Already Solved"
+        if not self.is_solvable(self.initial_board):
+            return "No Solution"
+
         frontier = []
         heappush(frontier, (0, 0, self.initial_board))
 
