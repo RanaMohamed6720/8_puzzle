@@ -35,6 +35,7 @@ Wrapper:
             width: "100dp"
             disabled:False
             on_press: root.validate(root)
+        
 
 
 <PuzzlePiece>:
@@ -133,18 +134,33 @@ Wrapper:
                         pos: self.pos 
                         size: self.size
                         radius: [20]
-
-    CustomButton:
-        text: 'Show Results'
-        size_hint: (None, None)
+    AnchorLayout:
+        size_hint_y: None
         height: "50dp"
-        width:"200dp"
-        pos_hint: {"center_x":0.5}
-        on_press: puzzle_grid.show_results()
-    Label:
-        text:''
-        size_hint:(1,None)
-        height:'20dp'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: "20dp"  
+            size_hint: (None, None)
+            height: "50dp"
+            width: "320dp" 
+
+            CustomButton:
+                text: 'Results'
+                size_hint: (None, None)
+                height: "50dp"
+                width: "150dp"
+                on_press: puzzle_grid.show_results()
+
+            CustomButton:
+                text: "Reset"
+                size_hint: (None, None)
+                height: "50dp"
+                width: "150dp"
+                disabled: puzzle_grid.animating
+                on_press: puzzle_grid.reset_board()
+
+
 
     GridLayout:
         rows: 2
@@ -172,15 +188,17 @@ Wrapper:
             on_press:puzzle_grid.solve_puzzle("ids")
 
         CustomButton:
-            text: "A*"
+            text: "Manhattan A*"
             disabled: puzzle_grid.animating
-            on_press:puzzle_grid.solve_puzzle("a_star")
+            on_press:puzzle_grid.solve_puzzle("manhattan_a_star")
+
+        CustomButton:
+            text: "Euclidean A*"
+            disabled: puzzle_grid.animating
+            on_press:puzzle_grid.solve_puzzle("euclidean_a_star")            
 
         CustomButton:
             text: "Stop"
             on_press: puzzle_grid.stop_animation()
 
-        CustomButton:
-            text: "Reset"
-            disabled: puzzle_grid.animating
-            on_press: puzzle_grid.reset_board()
+

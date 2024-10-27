@@ -83,26 +83,36 @@ class PuzzleGrid(GridLayout):
     def solve_puzzle(self, algorithm):
         if not self.animating:
             solver = PuzzleSolver(self.pieces, self.board_str().index("0"))
+            
             if algorithm == "bfs":
                 result = solver.bfs_solver()
+            elif algorithm == "dfs":
+                result = solver.dfs_solver()
+            elif algorithm == "ids":
+                result = solver.ids_solver()
+            elif algorithm == "manhattan_a_star":
+                result = solver.manhattan_a_star_solver()
+            elif algorithm == "euclidean_a_star":
+                result = solver.euclidean_a_star_solver()
+            
+            if result == "Already Solved":
+                self.show_results_popup("The puzzle is already solved.")
+            elif result == "No solution":
+                self.show_results_popup("No solution exists for this puzzle.")
+            else:
+                actions, cost, nodes_expanded, search_depth, running_time = result
+                self.show_results_popup(
+                    f"Actions: {actions}\n\n"
+                    f"Cost: {cost}\n\n"
+                    f"Nodes Expanded: {nodes_expanded}\n\n"
+                    f"Search Depth: {search_depth}\n\n"
+                    f"Running Time: {running_time:.6f} seconds"
+                )
                 
-                if result == "Already Solved":
-                    self.show_results_popup("The puzzle is already solved.")
-                elif result == "No solution":
-                    self.show_results_popup("No solution exists for this puzzle.")
-                else:
-                    actions, cost, nodes_expanded, search_depth, running_time = result
-                    self.show_results_popup(
-                        f"Actions: {actions}\n\n"
-                        f"Cost: {cost}\n\n"
-                        f"Nodes Expanded: {nodes_expanded}\n\n"
-                        f"Search Depth: {search_depth}\n\n"
-                        f"Running Time: {running_time:.6f} seconds"
-                    )
-                    
-                    self.solution_actions = actions
-                    self.animating = True
-                    self.move_step_by_step()
+                self.solution_actions = actions
+                self.animating = True
+                self.move_step_by_step()
+
 
     def show_results_popup(self, results_str): 
         self.results_popup = Popup(title='Puzzle Results',content=Label(text=results_str,text_size=(380, None)), size_hint=(None, None), size=(800, 700))
@@ -216,7 +226,10 @@ class PuzzleSolver:
     def ids_solver(self):
         pass
 
-    def a_star_solver(self):
+    def manhattan_a_star_solver(self):
+        pass
+    
+    def euclidean_a_star_solver(self):
         pass
 
     def construct_solution(self, parents, final_state):
