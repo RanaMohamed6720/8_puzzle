@@ -124,12 +124,11 @@ class PuzzleGrid(GridLayout):
                 self.animating = True
                 self.move_step_by_step()
 
-
     def show_results_popup(self, results_str): 
+        text_input = TextInput(text=results_str,readonly=True,font_size=18, size_hint=(1,None),height=100000,multiline=True,  )
         scrollable_content = ScrollView(size_hint=(1,None),size=(780,680))
-        scrollable_content.add_widget(Label(text=results_str,text_size=(780, None),size_hint_y=None,halign="left",valign="top",padding=(20, 100) ))
-        scrollable_content.children[0].bind(texture_size=lambda instance, value: instance.setter('height')(instance, value[1]))
-        self.results_popup = Popup(title='Puzzle Results',content=scrollable_content, size_hint=(None, None), size=(800, 700))
+        scrollable_content.add_widget(text_input)
+        self.results_popup = Popup(title='Puzzle Results',content=scrollable_content,size_hint=(None, None),size=(850, 750))
         
     def show_results(self):
         self.results_popup.open()
@@ -177,7 +176,7 @@ class PuzzleSolver:
         self.target_state = 12345678
         self.space = space_index
 
-    # counting number of inversions in the initial state to check if it is solvable
+     # counting number of inversions in the initial state to check if it is solvable
     def count_inversions(self, state):
         str_state = str(state).replace('0', '')  # ignore the empty tile
         inversions = 0
@@ -255,15 +254,14 @@ class PuzzleSolver:
 
 
     def dfs_solver(self):
-        # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
-        frontier = [(self.initial_board, 0)]  # each state in the frontier has depth
+        frontier = [(self.initial_board, 0)]
         explored = set()
-        parents = {self.initial_board: (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
+        parents = {self.initial_board: (None, None)}
         max_depth = 0
 
         start_time = time.time()
@@ -308,9 +306,6 @@ class PuzzleSolver:
 
 
     def ids_solver(self, max_depth):
-        # check if the initial state is already the target
-        if(self.initial_board == 12345678):
-            return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
