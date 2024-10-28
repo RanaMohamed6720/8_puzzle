@@ -7,12 +7,12 @@ def bfs(PuzzleSolver):
         return "Already Solved"
     if not PuzzleSolver.is_solvable(PuzzleSolver.initial_board):
         return "No Solution"
-    frontier = deque([(PuzzleSolver.initial_board, 1)])  # each state in the frontier has a state of the board , depth
+    frontier = deque([(str(PuzzleSolver.initial_board), 1)])  # each state in the frontier has a state of the board , depth
     visited = set() 
-    visited.add(PuzzleSolver.initial_board) # mark the initial state as visited
+    visited.add(str(PuzzleSolver.initial_board)) # mark the initial state as visited
     nodes_expanded = 0
     max_depth = 0
-    parents = {PuzzleSolver.initial_board: (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
+    parents = {str(PuzzleSolver.initial_board): (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
     start_time = time.time() 
 
     while frontier:

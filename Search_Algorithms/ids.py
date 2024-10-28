@@ -1,14 +1,14 @@
 import time
 def dls(PuzzleSolver, state, goal_state, depth_limit):
         frontier = [(str(state), 0)]
-        explored = set()
+        explored = {}
         parents = {str(state): (None, None)}
         max_depth = 0
         current_state = 0
         while frontier:
             current_state, depth = frontier.pop()
 
-            explored.add((current_state, depth))
+            explored[current_state] = depth
             max_depth = max(max_depth, depth)
 
             if int(current_state) == goal_state:
@@ -17,7 +17,7 @@ def dls(PuzzleSolver, state, goal_state, depth_limit):
 
             if depth < depth_limit:
                 for child, move in PuzzleSolver.neighbors(current_state):
-                    if not any(child == f[0] for f in frontier) and not any(child == e[0]  and  depth >= e[1] for e in explored):
+                    if not any(child == f[0] for f in frontier) and (child not in explored or depth + 1 < explored[child]):
                         frontier.append((child, depth + 1))
                         parents[child] = (current_state, move)
         return "No Solution"
