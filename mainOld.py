@@ -287,7 +287,7 @@ class PuzzleSolver:
         while frontier:
             current_state, depth = frontier.pop()
 
-            explored.add(current_state)
+            explored.add((current_state, depth))
             max_depth = max(max_depth, depth)
 
             if int(current_state) == goal_state:
@@ -296,13 +296,9 @@ class PuzzleSolver:
 
             if depth < depth_limit:
                 for child, move in self.neighbors(current_state):
-                    if not any(child == f[0] for f in frontier) and child not in explored:
+                    if not any(child == f[0] for f in frontier) and not any(child == e[0]  and  depth >= e[1] for e in explored):
                         frontier.append((child, depth + 1))
                         parents[child] = (current_state, move)
-        if depth == 12 and depth_limit == 12:
-            path, moves = self.construct_solution(parents, '328451607')
-            print(self.neighbors('328451607'))
-            print(moves)
         return "No Solution"
 
 
