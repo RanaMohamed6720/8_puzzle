@@ -2,6 +2,8 @@ from heapq import heappop
 from heapq import heappush
 import math
 import time
+def to_str(grid):
+     return '0' + f'{grid}' if(len(str(grid))==8) else f'{grid}'
 def a_star(PuzzleSolver, heuristic='euclidean'):
     if(PuzzleSolver.initial_board == 12345678):
         return "Already Solved"
@@ -9,11 +11,11 @@ def a_star(PuzzleSolver, heuristic='euclidean'):
         return "No Solution"
 
     frontier = []
-    heappush(frontier, (0, 0, str(PuzzleSolver.initial_board)))
+    heappush(frontier, (0, 0, PuzzleSolver.initial_board))
 
     explored = set()
 
-    parents = {str(PuzzleSolver.initial_board): (None, None)}
+    parents = {PuzzleSolver.initial_board: (None, None)}
     expanded = 0
     start_time = time.time()
     max_depth = 0
@@ -34,7 +36,7 @@ def a_star(PuzzleSolver, heuristic='euclidean'):
         for child, action in PuzzleSolver.neighbors(state):
             if child not in explored and not any(child == f[-1] for f in frontier):
                 g = cur_depth + 1
-                h = Euclidean_Distance_Heuristic(child) if heuristic == 'euclidean' else Manhattan_Distance_Heuristic(child)
+                h = Euclidean_Distance_Heuristic(to_str(child)) if heuristic == 'euclidean' else Manhattan_Distance_Heuristic(to_str(child))
                 f = g + h
                 parents[child] = (state, action)
                 heappush(frontier, (f, g, child))

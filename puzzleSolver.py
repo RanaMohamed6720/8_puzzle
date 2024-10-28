@@ -72,7 +72,8 @@ class PuzzleSolver:
                     state_str[index] +
                     state_str[new_index + 1:]
                 )
-                neighbors.append((child, action))
+                child_int = int(child)
+                neighbors.append((child_int, action))
         return neighbors
 
 

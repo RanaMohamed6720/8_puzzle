@@ -7,12 +7,12 @@ def bfs(PuzzleSolver):
         return "Already Solved"
     if not PuzzleSolver.is_solvable(PuzzleSolver.initial_board):
         return "No Solution"
-    frontier = deque([(str(PuzzleSolver.initial_board), 1)])  # each state in the frontier has a state of the board , depth
+    frontier = deque([((PuzzleSolver.initial_board), 1)])  # each state in the frontier has a state of the board , depth
     visited = set() 
-    visited.add(str(PuzzleSolver.initial_board)) # mark the initial state as visited
+    visited.add(PuzzleSolver.initial_board) # mark the initial state as visited
     nodes_expanded = 0
     max_depth = 0
-    parents = {str(PuzzleSolver.initial_board): (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
+    parents = {(PuzzleSolver.initial_board): (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
     start_time = time.time() 
 
     while frontier:
@@ -27,7 +27,7 @@ def bfs(PuzzleSolver):
                 visited.add(neighbor)
                 parents[neighbor] = (current_state, action)
                 # 3- check if it match the target state
-                if int(neighbor) == PuzzleSolver.target_state:# target is reached and algorithm terminate
+                if neighbor == PuzzleSolver.target_state:# target is reached and algorithm terminate
                     end_time = time.time() 
                     path, actions = PuzzleSolver.construct_solution(parents, neighbor)
                     cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1 

@@ -1,8 +1,8 @@
 import time
 def dls(PuzzleSolver, state, goal_state, depth_limit):
-        frontier = [(str(state), 0)]
+        frontier = [(state, 0)]
         explored = {}
-        parents = {str(state): (None, None)}
+        parents = {state: (None, None)}
         max_depth = 0
         current_state = 0
         while frontier:
@@ -11,7 +11,7 @@ def dls(PuzzleSolver, state, goal_state, depth_limit):
             explored[current_state] = depth
             max_depth = max(max_depth, depth)
 
-            if int(current_state) == goal_state:
+            if current_state == goal_state:
                 path, moves = PuzzleSolver.construct_solution(parents, current_state)
                 return moves, len(path)-1, len(explored), max_depth
 

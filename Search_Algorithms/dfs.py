@@ -5,9 +5,9 @@ def dfs(PuzzleSolver):
         if not PuzzleSolver.is_solvable(PuzzleSolver.initial_board):
             return "No Solution"
 
-        frontier = [(str(PuzzleSolver.initial_board), 0)]
+        frontier = [(PuzzleSolver.initial_board, 0)]
         explored = set()
-        parents = {str(PuzzleSolver.initial_board): (None, None)}
+        parents = {PuzzleSolver.initial_board: (None, None)}
         max_depth = 0
 
         start_time = time.time()
@@ -21,7 +21,7 @@ def dfs(PuzzleSolver):
                     frontier.append((child, depth+1))
                     parents[child] = (state, move)
 
-                    if int(child) == PuzzleSolver.target_state:
+                    if child == PuzzleSolver.target_state:
                         end_time = time.time()
                         path, moves = PuzzleSolver.construct_solution(parents, child)
                         return moves, len(path)-1, len(explored), max(max_depth, depth + 1), (end_time - start_time)
