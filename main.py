@@ -106,7 +106,7 @@ class PuzzleGrid(GridLayout):
             
             if result == "Already Solved":
                 self.show_results_popup("The puzzle is already solved.")
-            elif result == "No solution":
+            elif result == "No Solution":
                 self.show_results_popup("No solution exists for this puzzle.")
             else:
                 actions, cost, nodes_expanded, search_depth, running_time = result
@@ -248,7 +248,7 @@ class PuzzleSolver:
                         cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1 
                         return actions, cost, nodes_expanded, max_depth, (end_time - start_time)
 
-        return "No solution" # if all nodes are explored then no solution for this puzzle
+        return "No Solution" # if all nodes are explored then no solution for this puzzle
 
 
     def dfs_solver(self):
