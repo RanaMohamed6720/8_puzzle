@@ -18,13 +18,13 @@ def bfs(PuzzleSolver):
     while frontier:
         # 1- pop
         current_state, current_depth = frontier.popleft()
+        visited.add(current_state)
         nodes_expanded += 1
         max_depth = max(max_depth, current_depth)
         # 2- explore neighbors
         for neighbor, action in PuzzleSolver.neighbors(current_state):
             if neighbor not in visited and neighbor not in [state for state, _ in frontier]:
                 frontier.append((neighbor, current_depth + 1)) 
-                visited.add(neighbor)
                 parents[neighbor] = (current_state, action)
                 # 3- check if it match the target state
                 if neighbor == PuzzleSolver.target_state:# target is reached and algorithm terminate

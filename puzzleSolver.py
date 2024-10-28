@@ -10,7 +10,6 @@ from Search_Algorithms.dfs import dfs
 from Search_Algorithms.ids import ids
 from Search_Algorithms.a_star import a_star
 
-# class that contains algorithms implementation
 class PuzzleSolver:
     def __init__(self, initial_board,space_index):
         self.initial_board = initial_board

@@ -27,7 +27,7 @@ def a_star(PuzzleSolver, heuristic='euclidean'):
         explored.add(state)
         expanded += 1
 
-        if PuzzleSolver.target_state == int(state):
+        if PuzzleSolver.target_state == state:
                     end_time = time.time()
                     total_time = end_time - start_time
                     path, actions = PuzzleSolver.construct_solution(parents, state)
