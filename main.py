@@ -306,6 +306,9 @@ class PuzzleSolver:
 
 
     def ids_solver(self, max_depth):
+        # check if the initial state is already the target
+        if(self.initial_board == 12345678):
+            return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
