@@ -177,7 +177,7 @@ class PuzzleSolver:
         self.target_state = 12345678
         self.space = space_index
 
-     # counting number of inversions in the initial state to check if it is solvable
+    # counting number of inversions in the initial state to check if it is solvable
     def count_inversions(self, state):
         str_state = str(state).replace('0', '')  # ignore the empty tile
         inversions = 0
@@ -255,14 +255,15 @@ class PuzzleSolver:
 
 
     def dfs_solver(self):
+        # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
-        frontier = [(self.initial_board, 0)]
+        frontier = [(self.initial_board, 0)]  # each state in the frontier has depth
         explored = set()
-        parents = {self.initial_board: (None, None)}
+        parents = {self.initial_board: (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
         max_depth = 0
 
         start_time = time.time()
@@ -307,6 +308,9 @@ class PuzzleSolver:
 
 
     def ids_solver(self, max_depth):
+        # check if the initial state is already the target
+        if(self.initial_board == 12345678):
+            return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
