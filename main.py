@@ -303,6 +303,8 @@ class PuzzleSolver:
 
 
     def ids_solver(self, max_depth):
+        if(self.initial_board == 12345678):
+            return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
@@ -333,9 +335,17 @@ class PuzzleSolver:
         max_depth = 0
 
         while frontier:
-            _, cur_depth, state = heappop(frontier)
+            cost, cur_depth, state = heappop(frontier)
             max_depth = max(max_depth, cur_depth)
+
+            explored.add(state)
             expanded += 1
+
+            if self.target_state == int(state):
+                        end_time = time.time()
+                        total_time = end_time - start_time
+                        path, actions = self.construct_solution(parents, state)
+                        return actions, cost, expanded, max_depth, total_time
 
             for child, action in self.neighbors(state):
                 if child not in explored and child not in frontier:
@@ -344,13 +354,6 @@ class PuzzleSolver:
                     f = g + h
                     parents[child] = (state, action)
                     heappush(frontier, (f, g, child))
-                    explored.add(child)
-                if self.target_state == int(child):
-                    end_time = time.time()
-                    total_time = end_time - start_time
-                    path, actions = self.construct_solution(parents, child)
-                    cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1
-                    return actions, cost, expanded, max(max_depth, cur_depth + 1), total_time
 
     def Manhattan_Distance_Heuristic(self, grid):
         manhattan = 0
@@ -377,6 +380,7 @@ class PuzzleSolver:
             euclidean += math.sqrt((current_x - goal_x) ** 2 + (current_y - goal_y) ** 2)
             i += 1
         return euclidean
+
     # method to backtrack from the final state of the puzzle to the initial state to construct the solution path
     def construct_solution(self, parents, final_state):
         path = []
