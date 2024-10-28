@@ -16,13 +16,19 @@ def dfs(PuzzleSolver):
             explored.add(state)
             max_depth = max(max_depth, depth)
 
+            if state == PuzzleSolver.target_state:
+                end_time = time.time()
+                path, moves = PuzzleSolver.construct_solution(parents, child)
+                return moves, len(path)-1, len(explored), max_depth, (end_time - start_time)
+
             for child, move in PuzzleSolver.neighbors(state):
-                if child not in [f[0] for f in frontier] and child not in explored:
+                if int(child) == PuzzleSolver.target_state:
+                    parents[child] = (state, move)
+                    end_time = time.time()
+                    path, moves = PuzzleSolver.construct_solution(parents, child)
+                    return moves, len(path)-1, len(explored), max_depth, (end_time - start_time)
+
+                if child not in frontier and child not in explored:
                     frontier.append((child, depth+1))
                     parents[child] = (state, move)
-
-                    if child == PuzzleSolver.target_state:
-                        end_time = time.time()
-                        path, moves = PuzzleSolver.construct_solution(parents, child)
-                        return moves, len(path)-1, len(explored), max(max_depth, depth + 1), (end_time - start_time)
         return "No Solution"
