@@ -173,7 +173,7 @@ class PuzzleSolver:
         self.target_state = 12345678
         self.space = space_index
 
-     # counting number of inversions in the initial state to check if it is solvable
+    # counting number of inversions in the initial state to check if it is solvable
     def count_inversions(self, state):
         str_state = str(state).replace('0', '')  # ignore the empty tile
         inversions = 0
@@ -251,14 +251,15 @@ class PuzzleSolver:
 
 
     def dfs_solver(self):
+        # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
         if not self.is_solvable(self.initial_board):
             return "No Solution"
 
-        frontier = [(self.initial_board, 0)]
+        frontier = [(self.initial_board, 0)]  # each state in the frontier has depth
         explored = set()
-        parents = {self.initial_board: (None, None)}
+        parents = {self.initial_board: (None, None)} # parents dictionary to store the parent of a node and the actions that leads to it
         max_depth = 0
 
         start_time = time.time()
@@ -303,6 +304,7 @@ class PuzzleSolver:
 
 
     def ids_solver(self, max_depth):
+        # check if the initial state is already the target
         if(self.initial_board == 12345678):
             return "Already Solved"
         if not self.is_solvable(self.initial_board):
@@ -335,17 +337,9 @@ class PuzzleSolver:
         max_depth = 0
 
         while frontier:
-            cost, cur_depth, state = heappop(frontier)
+            _, cur_depth, state = heappop(frontier)
             max_depth = max(max_depth, cur_depth)
-
-            explored.add(state)
             expanded += 1
-
-            if self.target_state == int(state):
-                        end_time = time.time()
-                        total_time = end_time - start_time
-                        path, actions = self.construct_solution(parents, state)
-                        return actions, cost, expanded, max_depth, total_time
 
             for child, action in self.neighbors(state):
                 if child not in explored and child not in frontier:
@@ -354,6 +348,13 @@ class PuzzleSolver:
                     f = g + h
                     parents[child] = (state, action)
                     heappush(frontier, (f, g, child))
+                    explored.add(child)
+                if self.target_state == int(child):
+                    end_time = time.time()
+                    total_time = end_time - start_time
+                    path, actions = self.construct_solution(parents, child)
+                    cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1
+                    return actions, cost, expanded, max(max_depth, cur_depth + 1), total_time
 
     def Manhattan_Distance_Heuristic(self, grid):
         manhattan = 0
@@ -380,7 +381,6 @@ class PuzzleSolver:
             euclidean += math.sqrt((current_x - goal_x) ** 2 + (current_y - goal_y) ** 2)
             i += 1
         return euclidean
-
     # method to backtrack from the final state of the puzzle to the initial state to construct the solution path
     def construct_solution(self, parents, final_state):
         path = []
