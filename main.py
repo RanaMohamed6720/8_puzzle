@@ -1,3 +1,4 @@
+from kivy.uix.dropdown import ScrollView
 from collections import deque
 from heapq import heappop
 from heapq import heappush
@@ -125,7 +126,10 @@ class PuzzleGrid(GridLayout):
 
 
     def show_results_popup(self, results_str): 
-        self.results_popup = Popup(title='Puzzle Results',content=Label(text=results_str,text_size=(380, None)), size_hint=(None, None), size=(800, 700))
+        scrollable_content = ScrollView(size_hint=(1,None),size=(780,680))
+        scrollable_content.add_widget(Label(text=results_str,text_size=(780, None),size_hint_y=None,halign="left",valign="top",padding=(20, 100) ))
+        scrollable_content.children[0].bind(texture_size=lambda instance, value: instance.setter('height')(instance, value[1]))
+        self.results_popup = Popup(title='Puzzle Results',content=scrollable_content, size_hint=(None, None), size=(800, 700))
         
     def show_results(self):
         self.results_popup.open()
