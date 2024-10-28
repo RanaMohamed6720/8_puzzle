@@ -202,7 +202,6 @@ class PuzzleSolver:
 
             if(0<= new_row < 3 and 0 <= new_col < 3):
                 new_index = new_row * 3 + new_col
-                num = state_str[new_index]
                 index = zero_index
                 if(index >= new_index):
                     index , new_index = new_index , index
@@ -213,7 +212,7 @@ class PuzzleSolver:
                     state_str[index] +
                     state_str[new_index + 1:]
                 )
-                neighbors.append((child, action, new_row, new_col, int(num)))
+                neighbors.append((child, action))
         return neighbors
 
     def bfs_solver(self):
@@ -236,7 +235,7 @@ class PuzzleSolver:
             nodes_expanded += 1
             max_depth = max(max_depth, current_depth)
             # 2- explore neighbors
-            for neighbor, action, _, _, _ in self.neighbors(current_state):
+            for neighbor, action in self.neighbors(current_state):
                 if neighbor not in visited and neighbor not in frontier:
                     frontier.append((neighbor, current_depth + 1)) 
                     visited.add(neighbor)
@@ -268,7 +267,7 @@ class PuzzleSolver:
             explored.add(state)
             max_depth = max(max_depth, depth)
 
-            for child, move, _, _, _ in self.neighbors(state):
+            for child, move in self.neighbors(state):
                 if child not in frontier and child not in explored:
                     frontier.append((child, depth+1))
                     parents[child] = (state, move)
@@ -295,7 +294,7 @@ class PuzzleSolver:
                 return moves, len(path)-1, len(explored), max_depth
 
             if depth < depth_limit:
-                for child, move, _, _, _  in self.neighbors(current_state):
+                for child, move in self.neighbors(current_state):
                     if child not in frontier and child not in explored:
                     # if depth + 1 < depth_limit:
                         frontier.append((child, depth + 1))
@@ -316,7 +315,6 @@ class PuzzleSolver:
                 return actions, cost, nodesExpanded, depth, (end_time - start_time)
         return result
 
-################################################################### add the expanded in the return or not ? #############################################################################
     def a_star_solver(self, heuristic='euclidean'):
         if(self.initial_board == 12345678):
             return "Already Solved"
@@ -339,10 +337,10 @@ class PuzzleSolver:
             max_depth = max(max_depth, cur_depth)
             expanded += 1
 
-            for child, action, row, col, num in self.neighbors(state):
+            for child, action in self.neighbors(state):
                 if child not in explored and child not in frontier:
                     g = cur_depth + 1
-                    h = self.Euclidean_Distance_Heuristic(row, col, num) if heuristic == 'euclidean' else self.Manhattan_Distance_Heuristic(row, col, num)
+                    h = self.Euclidean_Distance_Heuristic(child) if heuristic == 'euclidean' else self.Manhattan_Distance_Heuristic(child)
                     f = g + h
                     parents[child] = (state, action)
                     heappush(frontier, (f, g, child))
@@ -354,13 +352,31 @@ class PuzzleSolver:
                     cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1
                     return actions, cost, expanded, max(max_depth, cur_depth + 1), total_time
 
-    def Manhattan_Distance_Heuristic(self, current_x, curretn_y, num):
-        goal_x, goal_y = num // 3, num % 3
-        return abs(current_x - goal_x) + abs(curretn_y - goal_y)
+    def Manhattan_Distance_Heuristic(self, grid):
+        manhattan = 0
+        i = 0
+        while i < len(grid):
+            if grid[i] == '0':
+                i += 1
+                continue
+            current_x, current_y = i // 3, i % 3
+            goal_x, goal_y = int(grid[i]) // 3, int(grid[i]) % 3
+            manhattan += abs(current_x - goal_x) + abs(current_y - goal_y)
+            i += 1
+        return manhattan
 
-    def Euclidean_Distance_Heuristic(self, current_x, curretn_y, num):
-        goal_x, goal_y = num // 3, num % 3
-        return math.sqrt((current_x - goal_x) ** 2 + (curretn_y - goal_y) ** 2)
+    def Euclidean_Distance_Heuristic(self, grid):
+        euclidean = 0
+        i = 0
+        while i < len(grid):
+            if grid[i] == '0':
+                i += 1
+                continue
+            current_x, current_y = i // 3, i % 3
+            goal_x, goal_y = int(grid[i]) // 3, int(grid[i]) % 3
+            euclidean += math.sqrt((current_x - goal_x) ** 2 + (current_y - goal_y) ** 2)
+            i += 1
+        return euclidean
     # method to backtrack from the final state of the puzzle to the initial state to construct the solution path
     def construct_solution(self, parents, final_state):
         path = []
