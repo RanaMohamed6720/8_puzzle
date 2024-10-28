@@ -9,35 +9,36 @@ def a_star(PuzzleSolver, heuristic='euclidean'):
         return "No Solution"
 
     frontier = []
-    heappush(frontier, (0, 0, PuzzleSolver.initial_board))
+    heappush(frontier, (0, 0, str(PuzzleSolver.initial_board)))
 
     explored = set()
-    explored.add(PuzzleSolver.initial_board)
 
-    parents = {PuzzleSolver.initial_board: (None, None)}
+    parents = {str(PuzzleSolver.initial_board): (None, None)}
     expanded = 0
     start_time = time.time()
     max_depth = 0
 
     while frontier:
-        _, cur_depth, state = heappop(frontier)
+        cost, cur_depth, state = heappop(frontier)
         max_depth = max(max_depth, cur_depth)
+
+        explored.add(state)
         expanded += 1
 
+        if PuzzleSolver.target_state == int(state):
+                    end_time = time.time()
+                    total_time = end_time - start_time
+                    path, actions = PuzzleSolver.construct_solution(parents, state)
+                    return actions, cost, expanded, max_depth, total_time
+
         for child, action in PuzzleSolver.neighbors(state):
-            if child not in explored and child not in frontier:
+            if child not in explored and not any(child == f[-1] for f in frontier):
                 g = cur_depth + 1
                 h = Euclidean_Distance_Heuristic(child) if heuristic == 'euclidean' else Manhattan_Distance_Heuristic(child)
                 f = g + h
                 parents[child] = (state, action)
                 heappush(frontier, (f, g, child))
-                explored.add(child)
-            if PuzzleSolver.target_state == int(child):
-                end_time = time.time()
-                total_time = end_time - start_time
-                path, actions = PuzzleSolver.construct_solution(parents, child)
-                cost = len(path) - 1   # depth of the goal is the num. of steps to reach it -1
-                return actions, cost, expanded, max(max_depth, cur_depth + 1), total_time
+
 
 def Manhattan_Distance_Heuristic(grid):
     manhattan = 0
