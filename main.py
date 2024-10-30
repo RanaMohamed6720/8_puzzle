@@ -98,6 +98,7 @@ class PuzzleGrid(GridLayout):
         
     # method to set the board pieces according to the input boxes
     def set_board(self, board):
+        self.stop_animation()
         if(puzzleSolver.PuzzleSolver.is_solvable(board)):
             self.is_solvable = 'Results'
             self.result_status = False
@@ -195,6 +196,7 @@ class PuzzleGrid(GridLayout):
     def reset_board(self):
         if not self.animating:
             self.set_board(12345678)
+        self.results_popup = Popup(title='Puzzle Results',content=Label(text='No results to be shown',), size_hint=(None, None), size=(800, 700))
 
 
 # class to handle setting the board through the input boxes
