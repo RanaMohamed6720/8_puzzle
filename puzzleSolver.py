@@ -33,7 +33,8 @@ class PuzzleSolver:
     #-------------------------------- Utility Functions -------------------------------------------------------
 
      # counting number of inversions in the initial state to check if it is solvable
-    def count_inversions(self, state):
+    @staticmethod
+    def count_inversions(state):
         str_state = str(state).replace('0', '')  # ignore the empty tile
         inversions = 0
         for i in range(len(str_state)):
@@ -44,8 +45,9 @@ class PuzzleSolver:
 
     # checking if the initial state is solvable
     # solvable if the number of inversions is even, otherwise it is unsolvable
-    def is_solvable(self, state):
-        inversions = self.count_inversions(state)
+    @staticmethod
+    def is_solvable(state):
+        inversions = PuzzleSolver.count_inversions(state)
         return inversions % 2 == 0
 
     #  get neighbors in a string is swapping the zero with character at 

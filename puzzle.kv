@@ -35,6 +35,7 @@ Wrapper:
             width: "100dp"
             disabled:False
             on_press: root.validate(root)
+
         
 
 
@@ -149,6 +150,7 @@ Wrapper:
                         pos: self.pos 
                         size: self.size
                         radius: [20]
+
     AnchorLayout:
         size_hint_y: None
         height: "50dp"
@@ -161,11 +163,12 @@ Wrapper:
             width: "320dp" 
 
             CustomButton:
-                text: 'Results'
+                text: puzzle_grid.is_solvable
                 size_hint: (None, None)
                 height: "50dp"
                 width: "150dp"
                 on_press: puzzle_grid.show_results()
+                disabled: puzzle_grid.result_status
 
             CustomButton:
                 text: "Reset"

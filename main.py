@@ -1,3 +1,4 @@
+from kivy.uix.accordion import StringProperty
 from kivy.uix.dropdown import ScrollView
 from kivy.app import App
 from kivy.uix.button import Button
@@ -28,6 +29,8 @@ class EmptyPiece(Button):
 
 class PuzzleGrid(GridLayout):
     animating = BooleanProperty(False)
+    result_status = BooleanProperty(False)
+    is_solvable = StringProperty('Results')
     results_popup =  Popup(title='Puzzle Results',content=Label(text='No results to be shown',), size_hint=(None, None), size=(800, 700))
 
     def __init__(self, **kwargs):
@@ -95,7 +98,12 @@ class PuzzleGrid(GridLayout):
         
     # method to set the board pieces according to the input boxes
     def set_board(self, board):
-        print(board)
+        if(puzzleSolver.PuzzleSolver.is_solvable(board)):
+            self.is_solvable = 'Results'
+            self.result_status = False
+        else:
+            self.is_solvable = 'No solution'
+            self.result_status = True
         self.pieces = board
         self.space = self.board_str().index("0")
         self.update_board()
@@ -191,6 +199,7 @@ class PuzzleGrid(GridLayout):
 
 # class to handle setting the board through the input boxes
 class InputPositions(BoxLayout):
+
     def validate(self, layout):
         input_grid = layout.ids.input_grid
         board_str = ""
@@ -222,13 +231,55 @@ class InputPositions(BoxLayout):
         puzzle_grid.set_board(board)
 
 
+        
+
+
     def show_popup(self, message):
         popup = Popup(title='Validation Error', content=Label(text=message), size_hint=(None, None), size=(400, 200))
         popup.open()
 
 
 class CustomInputField(TextInput):
-    pass
+    def insert_text(self, substring, from_undo=False):
+        super().insert_text(substring, from_undo)
+        if len(self.text) == 1 and substring.isdigit():
+            self.focus_next()
+
+    def keyboard_on_key_down(self, keyboard, keycode, text, modifiers):
+        key = keycode[0] 
+
+        if key == 275:  #right arrow keycode
+            if self.focus_next():  #change the focus if there is a next element
+                return True  
+        elif key == 276:  #left arrow keycode
+            if self.focus_previous(): 
+                return True  
+        elif key == 8:  #backspace
+            if self.text:  #if the textinput is filled
+                self.do_backspace(from_undo=False, mode='bkspc')  
+            else:
+                if self.focus_previous():  
+                    return True  
+            return True  
+
+        return super().keyboard_on_key_down(keyboard, keycode, text, modifiers)
+
+    def focus_next(self):
+        parent = self.parent
+        current_index = parent.children.index(self)
+        if current_index - 1 >= 0:
+            next_widget = parent.children[current_index - 1]
+            if isinstance(next_widget, CustomInputField):
+                next_widget.focus = True
+
+    def focus_previous(self):
+        parent = self.parent
+        current_index = parent.children.index(self)
+        if current_index < 8:
+            previous_widget = parent.children[current_index + 1]
+            if isinstance(previous_widget, CustomInputField):
+                previous_widget.focus = True
+
 
 
 class InputGrid(GridLayout):
