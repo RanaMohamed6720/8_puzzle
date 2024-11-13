@@ -2,7 +2,7 @@
 
 A Python application that solves the 8-puzzle problem using various AI search algorithms and a Kivy-based graphical user interface (GUI). The project implements Breadth-First Search (BFS), Depth-First Search (DFS), Iterative Deepening Search (IDS) and A* Search (with Manhattan and Euclidean heuristics) algorithms.
 
-![Demo image](https://github.com/user-attachments/assets/58e063cb-1b7f-472f-931f-4496e854e20f)
+![Demo image](assets\demo_img.png)
 
 
 ## Features
@@ -33,7 +33,7 @@ The application implements the following search algorithms:
 ##### Description
 A searching algorithm that explores all possible moves level-by-level until the solution is found (explores the shallowest first). Always guarantees the optimal and shortest solution path.
 ##### Pseudocode
-![image](https://github.com/user-attachments/assets/54b0d66c-81c7-40d0-a7ef-807811d159e4)
+![image](assets\bfs.png)
 ##### Analysis
 - Time Complexity: O(b<sup>d</sup>), Where b is the branching factor, and d is the depth of the solution.  <br>
 - Space Complexity: O(b<sup>d</sup>) The algorithm must store all nodes at the current depth in the frontier, leading to high memory usage.<br>
@@ -46,7 +46,7 @@ A searching algorithm that explores all possible moves level-by-level until the 
 ##### Description
 A searching algorithm that explores paths as deep as possible before backtracking.
 ##### Pseudocode
-![image](https://github.com/user-attachments/assets/171012aa-7d2d-41a1-96c9-5fff133d3ae8)
+![image](assets\dfs.png)
 ##### Analysis
 - Time Complexity: O(b<sup>m</sup>), Where b is the branching factor, and m is the maximum depth reached. <br>
 - Space Complexity: O(b.m)
@@ -59,8 +59,8 @@ A searching algorithm that explores paths as deep as possible before backtrackin
 ##### Description
  IDS combines the space efficiency of Depth-First Search (DFS) with the completeness of Breadth-First Search (BFS). Since it systematically explores all depths and ensures that each level is fully explored before moving deeper.
 ##### Pseudocode
-![image](https://github.com/user-attachments/assets/b28bc1c7-c261-4a19-91ab-dc672e32207f)
-![image](https://github.com/user-attachments/assets/58183196-ad4f-4b9e-8803-1c68d1051f64)
+![image](assets\ids.png)
+![image](assets\dls.png)
 ##### Analysis
 - Time Complexity: O(b<sup>d</sup>), Where b is the branching factor, and d is the depth of the solution.  <br>
 - Space Complexity: O(b.d), It requires memory proportional to the maximum depth being searched at any given time.<br>
@@ -75,7 +75,7 @@ A heuristic-driven search that evaluates the puzzle state by estimating the cost
 - Manhattan Distance: Calculates the total moves required based on vertical/horizontal distance. <br>
 - Euclidean Distance: Uses a straight-line distance metric between tiles and target positions.<br>
 ##### Pseudocode
-![image](https://github.com/user-attachments/assets/4f50d26b-becd-4535-9927-ae99d529abc7)
+![image](assets\a_star.png)
 ##### Analysis
 - Time Complexity: O(b<sup>d</sup>), Where b is the branching factor, and d is the depth of the solution.  <br>
 - Space Complexity: O(b<sup>d</sup>) A* stores all nodes in the frontier and explored sets, which can become very large.<br>
@@ -86,7 +86,7 @@ A heuristic-driven search that evaluates the puzzle state by estimating the cost
 ### Demo
 <div align="center">
 
-[Demo](https://github.com/user-attachments/assets/ddbac437-67bd-4f72-8e5f-8ec41df0da73)
+[Demo](assets\demo_video.mp4)
 
 </div>
 
